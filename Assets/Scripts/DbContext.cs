@@ -24,7 +24,7 @@ public class DbContext : MonoBehaviour
 
         filepath = Application.persistentDataPath + "/" + DatabaseName;
         DbContext.Instance.conn = $"URI=file:{filepath}";
-        //aqui
+        InitDatabase();
     }
     /// <summary>
     /// Criar banco de dados
