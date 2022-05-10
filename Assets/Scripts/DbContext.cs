@@ -1,6 +1,7 @@
 using Assets.Scripts.Model;
 using Mono.Data.Sqlite;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using UnityEngine;
@@ -83,7 +84,7 @@ public class DbContext : MonoBehaviour
 
         dbconn.Close();
     }
-
+    #region Insert
     /// <summary>
     /// Inserir categoria 
     /// </summary>
@@ -172,4 +173,43 @@ public class DbContext : MonoBehaviour
             Debug.LogError(e.Message);
         }
     }
+    #endregion
+    #region Get
+    /// <summary>
+    /// Consultar categoria 
+    /// </summary>
+    public List<CategoryViewModel> GetCategory()
+    {
+        var categories = new List<CategoryViewModel>();
+
+        using (dbconn = new SqliteConnection(DbContext.Instance.conn))
+        {
+            dbconn.Open();
+            dbcmd = dbconn.CreateCommand();
+            sqlQuery = string.Format($"SELECT * FROM Category;");
+            dbcmd.CommandText = sqlQuery;
+            IDataReader reader = dbcmd.ExecuteReader();
+
+            try
+            {
+                while (reader.Read())
+                {
+                    categories.Add(new CategoryViewModel(Convert.ToInt32(reader.GetInt32(0)), reader.GetString(1)));
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.Message);
+            }
+
+            reader.Close();
+            reader = null;
+            dbcmd.Dispose();
+            dbcmd = null;
+
+            dbconn.Close();
+            return categories;
+        }
+    }
+    #endregion
 }
