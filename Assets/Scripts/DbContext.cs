@@ -176,9 +176,9 @@ public class DbContext : MonoBehaviour
     #endregion
     #region Get
     /// <summary>
-    /// Consultar categoria 
+    /// Consultar categorias 
     /// </summary>
-    public List<CategoryViewModel> GetCategory()
+    public List<CategoryViewModel> GetCategories()
     {
         var categories = new List<CategoryViewModel>();
 
@@ -195,6 +195,43 @@ public class DbContext : MonoBehaviour
                 while (reader.Read())
                 {
                     categories.Add(new CategoryViewModel(Convert.ToInt32(reader.GetInt32(0)), reader.GetString(1)));
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.Message);
+            }
+
+            reader.Close();
+            reader = null;
+            dbcmd.Dispose();
+            dbcmd = null;
+
+            dbconn.Close();
+            return categories;
+        }
+    }
+
+    /// <summary>
+    /// Consultar palavras 
+    /// </summary>
+    public List<WordsViewModel> GetWords()
+    {
+        var categories = new List<WordsViewModel>();
+
+        using (dbconn = new SqliteConnection(DbContext.Instance.conn))
+        {
+            dbconn.Open();
+            dbcmd = dbconn.CreateCommand();
+            sqlQuery = string.Format($"SELECT * FROM Words;");
+            dbcmd.CommandText = sqlQuery;
+            IDataReader reader = dbcmd.ExecuteReader();
+
+            try
+            {
+                while (reader.Read())
+                {
+                    categories.Add(new WordsViewModel(reader.GetString(1),Convert.ToInt32(reader.GetInt32(0)),Convert.ToInt32(reader.GetInt32(2))));
                 }
             }
             catch (Exception e)

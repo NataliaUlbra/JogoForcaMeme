@@ -9,6 +9,7 @@ namespace Assets.Scripts.Model
     public class WordsViewModel
     {
         public string WordsValue { get; set; }
+        public int WordsId { get; set; }
         public int CategoryId { get; set; }
     }
 }
