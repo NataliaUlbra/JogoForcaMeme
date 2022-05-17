@@ -11,8 +11,9 @@ namespace Assets.Scripts.Model
         public int Id { get; set; }
         public string CategoryValue { get; set; }
 
-        public CategoryViewModel()
+        public CategoryViewModel(string categoryValue)
         {
+            CategoryValue = categoryValue;
         }
 
         public CategoryViewModel(int id, string categoryValue)

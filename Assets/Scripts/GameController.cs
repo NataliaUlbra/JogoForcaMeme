@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour
 {
@@ -20,7 +21,7 @@ public class GameController : MonoBehaviour
     private string Palavra;
     private string LetrasEliminadas;
     private int Vida;
-    private int PontuacaoAtual;
+    private int PontuacaoAtual = 0;
     private int QtdAcertos;
 
     #region Singleton
@@ -39,11 +40,18 @@ public class GameController : MonoBehaviour
     {
         Instance.Vida = 6;
         Instance.LetrasEliminadas = "";
-        Instance.PontuacaoAtual = 0; //Puxar do database
         Instance.QtdAcertos = 0;
-        Instance.Palavra = ("pao").ToUpper();  //Puxar do database
+        Instance.Palavra = RandomWord();
         GenerateGrid();
         TryButton.onClick.AddListener(TryLetra);
+    }
+
+    public string RandomWord()
+    {
+        var words = DbContext.Instance.GetWords();
+        var randomValue = Random.Range(1, words.Count);
+
+        return words[randomValue].WordsValue;
     }
 
     public void GenerateGrid()

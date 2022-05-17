@@ -10,5 +10,11 @@ namespace Assets.Scripts.Model
     {
         public string TipsValue { get; set; }
         public int WordsId { get; set; }
+
+        public TipsViewModel(string tipsValue, int wordsId)
+        {
+            TipsValue = tipsValue;
+            WordsId = wordsId;
+        }
     }
 }
