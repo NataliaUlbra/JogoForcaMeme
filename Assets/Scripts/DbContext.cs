@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class DbContext : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class DbContext : MonoBehaviour
     private IDataReader reader;
     string DatabaseName = "LocalDatabase4.s3db";
     public string filepath;
+    public int MaxValue, ValueId;
 
     private void Awake()
     {
@@ -75,6 +77,26 @@ public class DbContext : MonoBehaviour
             var queryDDL4 = "CREATE TABLE IF NOT EXISTS Leaderboard(RowId INTEGER PRIMARY KEY ASC,UserName TEXT,Score INTEGER)";
             dbcmd = dbconn.CreateCommand();
             dbcmd.CommandText = queryDDL4;
+            reader = dbcmd.ExecuteReader();
+
+            var queryDDL5 = "INSERT INTO Category (CategoryValue) VALUES(\"Selecione uma categoria\")";
+            dbcmd = dbconn.CreateCommand();
+            dbcmd.CommandText = queryDDL5;
+            reader = dbcmd.ExecuteReader();
+
+            var queryDDL6 = "UPDATE Category SET rowid = 0 WHERE rowid = 1;";
+            dbcmd = dbconn.CreateCommand();
+            dbcmd.CommandText = queryDDL6;
+            reader = dbcmd.ExecuteReader();
+
+            var queryDDL7 = "INSERT INTO Words(WordsValue, CategoryId)VALUES(\"Selecione uma palavra\",0)";
+            dbcmd = dbconn.CreateCommand();
+            dbcmd.CommandText = queryDDL7;
+            reader = dbcmd.ExecuteReader();
+
+            var queryDDL8 = "UPDATE Words SET rowid = 0 WHERE rowid = 1;";
+            dbcmd = dbconn.CreateCommand();
+            dbcmd.CommandText = queryDDL8;
             reader = dbcmd.ExecuteReader();
         }
         catch (Exception e)
@@ -231,7 +253,7 @@ public class DbContext : MonoBehaviour
             {
                 while (reader.Read())
                 {
-                    categories.Add(new WordsViewModel(reader.GetString(1),Convert.ToInt32(reader.GetInt32(0)),Convert.ToInt32(reader.GetInt32(2))));
+                    categories.Add(new WordsViewModel(reader.GetString(1), Convert.ToInt32(reader.GetInt32(0)), Convert.ToInt32(reader.GetInt32(2))));
                 }
             }
             catch (Exception e)

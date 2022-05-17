@@ -11,5 +11,20 @@ namespace Assets.Scripts.Model
         public string WordsValue { get; set; }
         public int WordsId { get; set; }
         public int CategoryId { get; set; }
+
+        public WordsViewModel()
+        {
+        }
+        public WordsViewModel(string wordsValue, int categoryId)
+        {
+            WordsValue = wordsValue;
+            CategoryId = categoryId;
+        }
+        public WordsViewModel(string wordsValue, int wordsId, int categoryId)
+        {
+            WordsValue = wordsValue;
+            WordsId = wordsId;
+            CategoryId = categoryId;
+        }
     }
 }
