@@ -96,7 +96,7 @@ public class DbContext : MonoBehaviour
             {
                 dbconn.Open();
                 dbcmd = dbconn.CreateCommand();
-                sqlQuery = string.Format($"INSERT INTO Category (CategoryValue) VALUES({model.CategoryValue})");
+                sqlQuery = string.Format($"INSERT INTO Category (CategoryValue) VALUES(\"{model.CategoryValue}\")");
                 dbcmd.CommandText = sqlQuery;
                 dbcmd.ExecuteScalar();
                 dbconn.Close();
@@ -118,7 +118,7 @@ public class DbContext : MonoBehaviour
             {
                 dbconn.Open();
                 dbcmd = dbconn.CreateCommand();
-                sqlQuery = string.Format($"INSERT INTO Tips (TipsValue,WordsId)VALUES({model.TipsValue}, {model.WordsId})");
+                sqlQuery = string.Format($"INSERT INTO Tips (TipsValue,WordsId)VALUES(\"{model.TipsValue}\", {model.WordsId})");
                 dbcmd.CommandText = sqlQuery;
                 dbcmd.ExecuteScalar();
                 dbconn.Close();
@@ -140,7 +140,7 @@ public class DbContext : MonoBehaviour
             {
                 dbconn.Open();
                 dbcmd = dbconn.CreateCommand();
-                sqlQuery = string.Format($"INSERT INTO Leaderboard (UserName,Score)VALUES({model.UserName}, {model.Score})");
+                sqlQuery = string.Format($"INSERT INTO Leaderboard (UserName,Score)VALUES(\"{model.UserName}\", {model.Score})");
                 dbcmd.CommandText = sqlQuery;
                 dbcmd.ExecuteScalar();
                 dbconn.Close();
@@ -162,7 +162,7 @@ public class DbContext : MonoBehaviour
             {
                 dbconn.Open();
                 dbcmd = dbconn.CreateCommand();
-                sqlQuery = string.Format($"INSERT INTO Words (WordsValue,CategoryId)VALUES({model.WordsValue}, {model.CategoryId})");
+                sqlQuery = string.Format($"INSERT INTO Words (WordsValue,CategoryId)VALUES(\"{model.WordsValue}\", {model.CategoryId})");
                 dbcmd.CommandText = sqlQuery;
                 dbcmd.ExecuteScalar();
                 dbconn.Close();
