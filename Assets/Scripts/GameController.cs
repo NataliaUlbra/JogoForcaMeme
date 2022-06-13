@@ -18,8 +18,10 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject CaixaTextoLetrasEliminadas;
     [SerializeField] private GameObject CaixaTextoPontuacao, CaixaTextoPontuacaoTotal;
     [SerializeField] private GameObject Stickerman;
+    [SerializeField] private GameObject CategoriaName;
     [SerializeField] private InputField CampoInputField;
     [SerializeField] private Button TryButton;
+    private string NomeCategoria;
     private string UserName;
     private string Palavra;
     private string LetrasEliminadas;
@@ -54,8 +56,18 @@ public class GameController : MonoBehaviour
 
     public void Start()//Inicializa o jogo
     {
+        if (ButtonController.Instance.Categoria_Dropdown.value != 0)
+        {
+            Instance.NomeCategoria = ButtonController.Instance.Categoria_Dropdown.captionText.text;
+            Assets.Scripts.Model.CategoryViewModel categoriaSelecionada = DbContext.Instance.GetCategories().Where(x => x.CategoryValue == Instance.NomeCategoria).FirstOrDefault();
+            Instance.TodasPalavras = GetAllWords().Where(x => x.CategoryId == categoriaSelecionada.Id).ToList();
+        }
+        else
+        {
+            Instance.TodasPalavras = GetAllWords();
+        }
+
         Instance.UserName = ButtonController.Instance.UserName.text;
-        Instance.TodasPalavras = GetAllWords();//TODO: Filtrar por categorias
         Instance.Vida = 6;
         Instance.LetrasEliminadas = "";
         Instance.QtdAcertos = 0;
@@ -105,10 +117,14 @@ public class GameController : MonoBehaviour
     public string RandomWord()
     {
         var randomValue = Random.Range(0, Instance.TodasPalavras.Count);
-        var randomWord = Instance.TodasPalavras[randomValue].WordsValue;
+        var randomWord = Instance.TodasPalavras[randomValue];
         Instance.TodasPalavras.Remove(TodasPalavras[randomValue]);
-
-        return randomWord;
+        Assets.Scripts.Model.CategoryViewModel categoriaSelecionada = 
+            DbContext.Instance.GetCategories().Where(x => x.Id == randomWord.CategoryId).FirstOrDefault();
+        
+        Instance.CategoriaName.transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = categoriaSelecionada.CategoryValue;
+        
+        return randomWord.WordsValue;
     }
 
     public void GenerateGrid()
@@ -201,7 +217,8 @@ public class GameController : MonoBehaviour
         Instance.Stickerman.transform.GetChild(Instance.Vida).gameObject.SetActive(false);
         if (Instance.Vida == 0)
         {
-
+            Instance.PontuacaoTotal += Instance.PontuacaoAtual;
+            Instance.CaixaTextoPontuacaoTotal.GetComponent<TextMeshProUGUI>().text = Instance.PontuacaoTotal.ToString();
             FimDejogo();
             return;
         }
