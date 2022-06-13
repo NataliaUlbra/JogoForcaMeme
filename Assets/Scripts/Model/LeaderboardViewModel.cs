@@ -10,5 +10,11 @@ namespace Assets.Scripts.Model
     {
         public string UserName { get; set; }
         public int Score { get; set; }
+
+        public LeaderboardViewModel(string userName, int score)
+        {
+            UserName = userName;
+            Score = score;
+        }
     }
 }

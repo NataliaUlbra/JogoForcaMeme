@@ -270,5 +270,42 @@ public class DbContext : MonoBehaviour
             return categories;
         }
     }
+
+    /// <summary>
+    /// Consultar palavras 
+    /// </summary>
+    public List<LeaderboardViewModel> GetLeaderboard()
+    {
+        var leaderboard = new List<LeaderboardViewModel>();
+
+        using (dbconn = new SqliteConnection(DbContext.Instance.conn))
+        {
+            dbconn.Open();
+            dbcmd = dbconn.CreateCommand();
+            sqlQuery = string.Format($"SELECT * FROM Leaderboard;");
+            dbcmd.CommandText = sqlQuery;
+            IDataReader reader = dbcmd.ExecuteReader();
+
+            try
+            {
+                while (reader.Read())
+                {
+                    leaderboard.Add(new LeaderboardViewModel(reader.GetString(1), Convert.ToInt32(reader.GetInt32(2))));
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.Message);
+            }
+
+            reader.Close();
+            reader = null;
+            dbcmd.Dispose();
+            dbcmd = null;
+
+            dbconn.Close();
+            return leaderboard;
+        }
+    }
     #endregion
 }
