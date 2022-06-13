@@ -7,7 +7,7 @@ public class ButtonController : MonoBehaviour
 {
     public GameObject LoginScreen, GameScreen;
     public GameObject AdmScreen;
-    public GameObject PalavrasScreen, DicasScreen, CategoriasScreen;
+    public GameObject PalavrasScreen, DicasScreen, CategoriasScreen, ExitScreen;
     public InputField UserName;
     #region Singleton
     //Singleton
@@ -35,6 +35,15 @@ public class ButtonController : MonoBehaviour
     {
         var newStatus = !Instance.AdmScreen.activeSelf;
         Instance.AdmScreen.SetActive(newStatus);
+    }
+    public void Exit_Screen()
+    {
+        var newStatus = !Instance.ExitScreen.activeSelf;
+        Instance.ExitScreen.SetActive(newStatus);
+    }
+    public void SAIR_JOGO()
+    {
+        Application.Quit();
     }
 
     public void CadastroNovasPalavras_Screen()

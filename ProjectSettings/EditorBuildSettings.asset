@@ -8,4 +8,7 @@ EditorBuildSettings:
   - enabled: 0
     path: 
     guid: 00000000000000000000000000000000
+  - enabled: 1
+    path: Assets/Scenes/GameForca.unity
+    guid: 902841b9bc0c0784d8ef2d761ee618ff
   m_configObjects: {}

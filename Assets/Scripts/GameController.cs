@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -14,15 +16,29 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject PalavraGrid, EspacoGrid;
     [SerializeField] private GameObject LetraPrefab, EspacoPrefab;
     [SerializeField] private GameObject CaixaTextoLetrasEliminadas;
-    [SerializeField] private GameObject CaixaTextoPontuacao;
+    [SerializeField] private GameObject CaixaTextoPontuacao, CaixaTextoPontuacaoTotal;
     [SerializeField] private GameObject Stickerman;
     [SerializeField] private InputField CampoInputField;
     [SerializeField] private Button TryButton;
+    private string UserName;
     private string Palavra;
     private string LetrasEliminadas;
     private int Vida;
     private int PontuacaoAtual = 0;
+    private int PontuacaoTotal = 0;
     private int QtdAcertos;
+    private List<Assets.Scripts.Model.WordsViewModel> TodasPalavras = new List<Assets.Scripts.Model.WordsViewModel>();
+    #region Vitoria_Screen
+    [SerializeField] private GameObject VitoriaScreen;
+    [SerializeField] private Button EncerrarJogoButton;
+    [SerializeField] private Button ContinuarJogoButton;
+    #endregion
+    #region FimDejogo_Screen
+    [SerializeField] private GameObject FimDejogoScreen;
+    [SerializeField] private GameObject NameScorePrefab;
+    [SerializeField] private GameObject ScoreGrid;
+    [SerializeField] private Button FimDejogoButton;
+    #endregion
 
     #region Singleton
     //Singleton
@@ -36,22 +52,63 @@ public class GameController : MonoBehaviour
     }
     #endregion
 
-    private void Start()//Inicializa a rodada
+    public void Start()//Inicializa o jogo
     {
+        Instance.UserName = ButtonController.Instance.UserName.text;
+        Instance.TodasPalavras = GetAllWords();//TODO: Filtrar por categorias
         Instance.Vida = 6;
         Instance.LetrasEliminadas = "";
         Instance.QtdAcertos = 0;
         Instance.Palavra = RandomWord();
-        GenerateGrid();
         TryButton.onClick.AddListener(TryLetra);
+        GenerateGrid();
     }
+    public void Restart()
+    {
+        ClearScreen();
+        Instance.Vida = 6;
+        Instance.QtdAcertos = 0;
+        Instance.PontuacaoAtual = 0;
+        Instance.Palavra = RandomWord();
+        TryButton.onClick.AddListener(TryLetra);
+        GenerateGrid();
+    }
+    public void ClearScreen()
+    {
+        Instance.TryButton.onClick.RemoveAllListeners();
+        Instance.EncerrarJogoButton.onClick.RemoveAllListeners();
+        Instance.ContinuarJogoButton.onClick.RemoveAllListeners();
+        Instance.CaixaTextoPontuacao.GetComponent<TextMeshProUGUI>().text = "";
+        Instance.LetrasEliminadas = "";
 
-    public string RandomWord()
+        for (int i = 0; i < PalavraGrid.transform.childCount; i++)
+        {
+            Destroy(PalavraGrid.transform.GetChild(i).gameObject);
+        }
+        for (int i = 0; i < EspacoGrid.transform.childCount; i++)
+        {
+            Destroy(EspacoGrid.transform.GetChild(i).gameObject);
+        }
+        for (int i = 0; i < Instance.Stickerman.transform.childCount; i++)
+        {
+            Instance.Stickerman.transform.GetChild(i).gameObject.SetActive(true);
+        }
+
+        Instance.VitoriaScreen.SetActive(false);
+    }
+    private List<Assets.Scripts.Model.WordsViewModel> GetAllWords()
     {
         var words = DbContext.Instance.GetWords();
-        var randomValue = Random.Range(1, words.Count);
+        words.RemoveAt(0);
+        return words;
+    }
+    public string RandomWord()
+    {
+        var randomValue = Random.Range(0, Instance.TodasPalavras.Count);
+        var randomWord = Instance.TodasPalavras[randomValue].WordsValue;
+        Instance.TodasPalavras.Remove(TodasPalavras[randomValue]);
 
-        return words[randomValue].WordsValue;
+        return randomWord;
     }
 
     public void GenerateGrid()
@@ -133,10 +190,9 @@ public class GameController : MonoBehaviour
 
             if (Instance.QtdAcertos == Instance.Palavra.Length)//Verifica vitoria
             {
-                Instance.PontuacaoAtual += ACERTO_PALAVRA;
+                Instance.PontuacaoAtual = ACERTO_PALAVRA;
                 Instance.CaixaTextoPontuacao.GetComponent<TextMeshProUGUI>().text = Instance.PontuacaoAtual.ToString();
-                Debug.Log("VITORIA");
-                //TODO: TELA REINICIA
+                VITORIA();
             }
             return;
         }
@@ -145,10 +201,51 @@ public class GameController : MonoBehaviour
         Instance.Stickerman.transform.GetChild(Instance.Vida).gameObject.SetActive(false);
         if (Instance.Vida == 0)
         {
-            Debug.Log("GAME OVER");
-            Instance.Stickerman.GetComponent<Image>().color = Color.red;
+
+            FimDejogo();
             return;
-            //TODO: TELA REINICIA
         }
+    }
+    public void VITORIA()
+    {
+        Instance.PontuacaoTotal += Instance.PontuacaoAtual;
+        Instance.CaixaTextoPontuacaoTotal.GetComponent<TextMeshProUGUI>().text = Instance.PontuacaoTotal.ToString();
+        Instance.LetrasEliminadas = "";
+        if (Instance.TodasPalavras.Count > 0)
+        {
+            Instance.VitoriaScreen.SetActive(true);
+            Instance.ContinuarJogoButton.onClick.AddListener(Restart);
+            Instance.EncerrarJogoButton.onClick.AddListener(FimDejogo);
+            return;
+        }
+        FimDejogo();
+    }
+    public void FimDejogo()
+    {
+        //mostrar pontuacao
+        Instance.FimDejogoScreen.SetActive(true);
+        Instance.FimDejogoButton.onClick.AddListener(RetornaMenuPrincipal);
+        DbContext.Instance.InsertLeaderboard(new Assets.Scripts.Model.LeaderboardViewModel(Instance.UserName, Instance.PontuacaoTotal));
+        var leaderboard = DbContext.Instance.GetLeaderboard().OrderByDescending(x => x.Score).ToList();
+
+        foreach (var leader in leaderboard)
+        {
+            if (Instance.ScoreGrid.transform.childCount >= 10)
+            {
+                break;
+            }
+
+            var _nameLeader = Instantiate(NameScorePrefab);
+            _nameLeader.transform.GetChild(0).GetComponent<Text>().text = leader.UserName;
+            _nameLeader.transform.GetChild(1).GetComponent<Text>().text = leader.Score.ToString();
+            _nameLeader.transform.SetParent(Instance.ScoreGrid.transform);
+        }
+    }
+    public void RetornaMenuPrincipal()
+    {
+        Instance.FimDejogoScreen.SetActive(false);
+        Instance.VitoriaScreen.SetActive(false);
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
