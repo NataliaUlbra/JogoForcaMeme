@@ -7,8 +7,9 @@ public class ButtonController : MonoBehaviour
 {
     public GameObject LoginScreen, GameScreen;
     public GameObject AdmScreen;
-    public GameObject PalavrasScreen, DicasScreen, CategoriasScreen, ExitScreen;
+    public GameObject PalavrasScreen, DicasScreen, CategoriasScreen, ExitScreen, SelecionarCategoriaScreen;
     public InputField UserName;
+    public Dropdown Categoria_Dropdown;
     #region Singleton
     //Singleton
     public static ButtonController Instance { get; protected set; }
@@ -29,6 +30,17 @@ public class ButtonController : MonoBehaviour
         }
         Instance.GameScreen.SetActive(true);
         Instance.LoginScreen.SetActive(false);
+        Instance.SelecionarCategoriaScreen.SetActive(false);
+    }
+    public void StarGamePorCategoria()
+    {
+        if (UserName.text == string.Empty || ButtonController.Instance.Categoria_Dropdown.value == 0)
+        {
+            return;
+        }
+        Instance.GameScreen.SetActive(true);
+        Instance.LoginScreen.SetActive(false);
+        Instance.SelecionarCategoriaScreen.SetActive(false);
     }
 
     public void Adm_Screen()
@@ -36,6 +48,16 @@ public class ButtonController : MonoBehaviour
         var newStatus = !Instance.AdmScreen.activeSelf;
         Instance.AdmScreen.SetActive(newStatus);
     }
+    public void SelecionarCategoria_Screen()
+    {
+        if (UserName.text == string.Empty)
+        {
+            return;
+        }
+        var newStatus = !Instance.SelecionarCategoriaScreen.activeSelf;
+        Instance.SelecionarCategoriaScreen.SetActive(newStatus);
+    }
+
     public void Exit_Screen()
     {
         var newStatus = !Instance.ExitScreen.activeSelf;
